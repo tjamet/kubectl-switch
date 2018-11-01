@@ -72,6 +72,7 @@ func Download(version string) error {
 	if err != nil {
 		return fmt.Errorf("failed to write the kubectl version: %s", err)
 	}
+	defer fd.Close()
 	_, err = io.Copy(fd, response.Body)
 	if err != nil {
 		return fmt.Errorf("failed to write the kubectl version: %s", err)
