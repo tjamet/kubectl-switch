@@ -80,6 +80,9 @@ func Download(version string) error {
 		return fmt.Errorf("failed to download the kubectl version: %s", err)
 	}
 	defer response.Body.Close()
+	if response.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to download kubectl from %s: %s", kubectlURL, err)
+	}
 	fd, err := os.Create(kubectl)
 	if err != nil {
 		return fmt.Errorf("failed to write the kubectl version: %s", err)

@@ -29,7 +29,8 @@ func mockKubectl(t testing.TB, code int) func() {
 		assert.Equal(t, "storage.googleapis.com", r.Host)
 		assert.Contains(t, "kubectl", r.RequestURI)
 		return &http.Response{
-			Body: ioutil.NopCloser(strings.NewReader(fmt.Sprintf("#!/bin/bash\necho $@\nexit %d\n", code))),
+			Body:       ioutil.NopCloser(strings.NewReader(fmt.Sprintf("#!/bin/bash\necho $@\nexit %d\n", code))),
+			StatusCode: http.StatusOK,
 		}, nil
 	})
 	return func() {
@@ -47,6 +48,25 @@ func TestPath(t *testing.T) {
 	defer xtesting.NoEnv("HOME")()
 	defer xtesting.InEnv("USERPROFILE", "./test-home")()
 	assert.Equal(t, "./test-home/.kube/bin/kubectl-1.10.0", kubectl.Path("1.10.0"))
+}
+
+func TestDownload(t *testing.T) {
+	defer xtesting.InEnv("HOME", "./test-home")()
+	assert.False(t, kubectl.Installed("test-some-version"))
+	t.Run("When the server returns a 404, kubectl is not installed", func(t *testing.T) {
+		defaultTransport := http.DefaultTransport
+		http.DefaultTransport = roundTripperFunc(func(r *http.Request) (*http.Response, error) {
+			return &http.Response{
+				Body:       ioutil.NopCloser(strings.NewReader("#!/bin/bash\necho $@\nexit 1\n")),
+				StatusCode: http.StatusNotFound,
+			}, nil
+		})
+		defer func() {
+			http.DefaultTransport = defaultTransport
+		}()
+		assert.Error(t, kubectl.Download("v0.0.9.9"))
+		assert.False(t, kubectl.Installed("v0.0.9.9"))
+	})
 }
 
 func TestDownloadAndRun(t *testing.T) {
