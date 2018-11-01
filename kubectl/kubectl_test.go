@@ -40,6 +40,7 @@ func mockKubectl(t testing.TB, code int) func() {
 func TestURL(t *testing.T) {
 	testURL(t, "v1.0.0", fmt.Sprintf("https://storage.googleapis.com/kubernetes-release/release/v1.0.0/bin/%s/%s/kubectl", runtime.GOOS, runtime.GOARCH))
 	testURL(t, "1.0.0", fmt.Sprintf("https://storage.googleapis.com/kubernetes-release/release/v1.0.0/bin/%s/%s/kubectl", runtime.GOOS, runtime.GOARCH))
+	testURL(t, "v1.0.0+coreos", fmt.Sprintf("https://storage.googleapis.com/kubernetes-release/release/v1.0.0/bin/%s/%s/kubectl", runtime.GOOS, runtime.GOARCH))
 }
 
 func TestPath(t *testing.T) {
@@ -53,20 +54,20 @@ func TestDownloadAndRun(t *testing.T) {
 	assert.False(t, kubectl.Installed("test-some-version"))
 	t.Run("When kubectl returns an error, Run returns the status code", func(t *testing.T) {
 		defer mockKubectl(t, 1)()
-		assert.NoError(t, kubectl.Download("test-1"))
-		assert.FileExists(t, "./test-home/.kube/bin/kubectl-test-1")
-		assert.Equal(t, 1, kubectl.Exec("test-1"))
-		assert.True(t, kubectl.Installed("test-1"))
+		assert.NoError(t, kubectl.Download("0.0.0.1"))
+		assert.FileExists(t, "./test-home/.kube/bin/kubectl-0.0.0.1")
+		assert.Equal(t, 1, kubectl.Exec("0.0.0.1"))
+		assert.True(t, kubectl.Installed("0.0.0.1"))
 	})
 	t.Run("When kubectl returns an error, Run returns the status code", func(t *testing.T) {
 		defer mockKubectl(t, 0)()
-		assert.NoError(t, kubectl.Download("test-0"))
-		assert.FileExists(t, "./test-home/.kube/bin/kubectl-test-0")
-		assert.Equal(t, 0, kubectl.Exec("test-0"))
+		assert.NoError(t, kubectl.Download("0.0.0.2"))
+		assert.FileExists(t, "./test-home/.kube/bin/kubectl-0.0.0.2")
+		assert.Equal(t, 0, kubectl.Exec("0.0.0.2"))
 	})
 	t.Run("Arguments are forwarded to kubectl", func(t *testing.T) {
 		defer mockKubectl(t, 0)()
-		out, err := kubectl.Command("test-0", "version", "--help").Output()
+		out, err := kubectl.Command("0.0.0.2", "version", "--help").Output()
 		assert.NoError(t, err)
 		assert.Contains(t, string(out), "version")
 		assert.Contains(t, string(out), "--help")
