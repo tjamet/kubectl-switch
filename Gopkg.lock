@@ -104,16 +104,16 @@
   version = "v1.0.3"
 
 [[projects]]
-  name = "github.com/stretchr/objx"
-  packages = ["."]
-  revision = "477a77ecc69700c7cdeb1fa9e129548e1c1c393c"
-  version = "v0.1.1"
-
-[[projects]]
   name = "github.com/stretchr/testify"
-  packages = [".","assert","http","mock"]
+  packages = ["assert"]
   revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
   version = "v1.2.2"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/tjamet/xgo"
+  packages = ["xtesting"]
+  revision = "bf958fe370b142919d3adec2633d0722b65bc155"
 
 [[projects]]
   branch = "master"
@@ -190,6 +190,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "56960a556cb5b064afd336016e0167bc13d911ebba894eac46567a2e31255335"
+  inputs-digest = "07cf8850db85b6cc057926b7cbc53eb746a335cb8fc0f64429b131331b25ca70"
   solver-name = "gps-cdcl"
   solver-version = 1
