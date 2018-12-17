@@ -1,44 +1,49 @@
 package main
 
 import (
-	"os"
-
+	"fmt"
+	"github.com/tjamet/kubectl-switch/server"
+	"os" 
 	"github.com/tjamet/kubectl-switch/kubectl"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
+
+	"github.com/spf13/cobra"
+	utilflag "k8s.io/apiserver/pkg/util/flag"
+	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 
-const dlTemplate = "https://storage.googleapis.com/kubernetes-release/release/%s/bin/%s/%s/kubectl"
+var exit = os.Exit
 
-func homeDir() string {
-	if h := os.Getenv("HOME"); h != "" {
-		return h
+func run(rg server.RestConfigGetter) {
+	v := server.GetVersionFromConfig(rg)
+	if !kubectl.Installed(v) {
+		err := kubectl.Download(v)
+		if err != nil {
+			fmt.Printf("Failed to download kubectl version %s: %v\n", v, err.Error())
+			exit(1)
+		}
 	}
-	return os.Getenv("USERPROFILE") // windows
+	exit(kubectl.Exec(v, os.Args[1:]...))
 }
 
 func main() {
-	configDir := homeDir() + "/.kube/"
 
-	config, err := clientcmd.BuildConfigFromFlags("", configDir+"/config")
-	if err != nil {
-		panic(err.Error())
-	}
+	cmds := &cobra.Command{}
 
-	// create the clientset
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(err.Error())
+	flags := cmds.PersistentFlags()
+	flags.SetNormalizeFunc(utilflag.WarnWordSepNormalizeFunc) // Warn for "_" flags
+
+	// Normalize all flags that are coming from other packages or pre-configurations
+	// a.k.a. change all "_" to "-". e.g. glog package
+	flags.SetNormalizeFunc(utilflag.WordSepNormalizeFunc)
+
+	kubeConfigFlags := genericclioptions.NewConfigFlags()
+	kubeConfigFlags.AddFlags(flags)
+	cmds.Run = func(cmd *cobra.Command, args []string) {
+		run(kubeConfigFlags)
 	}
-	version, err := clientset.ServerVersion()
-	if err != nil {
-		panic(err)
-	}
-	if !kubectl.Installed(version.String()) {
-		err := kubectl.Download(version.String())
-		if err != nil {
-			panic(err)
-		}
-	}
-	os.Exit(kubectl.Exec(version.String(), os.Args[1:]...))
+	cmds.SetUsageFunc(func(*cobra.Command) error {
+		run(kubeConfigFlags)
+		return nil
+	})
+	cmds.Execute()
 }
