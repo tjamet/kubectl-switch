@@ -2,4 +2,15 @@ language: go
 go:
 - "1.10"
 - "1.11"
-install: true # bypass vendoring, we are using dep
+install: true # bypass vendoring, we are using vendoring
+before_deploy: bash -e ./release.sh
+deploy:
+  provider: releases
+  api_key:
+    secure: "plSiXgXu6+o9SWiQZJY88fR7d2SzHtl/ys13bJkfZkvutYa258U9cxzMP0cTKr2gXcIcPXX1aeWiEhASG+Veu39X/Jg3+dG5jznGWXANisCCQSGyEnTWmyZW02mxO2gVeL1Y7FoyWIURbUeIIPxxjPXd8VFASWL7P0jG4AS3jXfUB6v/OkmRe8r3E5mzs7HN7b9dB80EkSOJnFOOpDsrPdc0+5xQHVvG0HRYYbE/6Dgzty8F4czKK7byR2bkXmfR+cb40+4IO0bTrYMUIuHzDWEs7+jq48JmEBPnwSDx0LrAzcL/IhM8Jz1tDgxKrGgvWZ9cPGq2WAm/X3RP+qOcS6cwRihHJMnu3tyTuG7H/UzRc3IpQpyiKUph8P2dGo911ZP/5Qao5cO2WhbEHlyEybifO+gyEDShfHCr3FnZWv5uODUKmG/b8E69VvrhkBYly4bcPnhNxmtsXnmwYpTPh/RW79D4lzvTEzmLSLclHbEoIL+h3eEVGxbZJXK1XYBL+ZV4mfgoEM+9fyQZzuM4JWhMKBh3QeBg6InDJ261bINTyw6q41u6xy0lXWzta2cFmIHE7t5/vjhEtbglctAypB1qY1FA5wE3SJ4wFI2ORkNxrfYYk8JqE6bp5i6S79kfeT6JlwtH6ioeonUXBNWyYnV7fRRGIQIOqrfQBzQmXu0="
+  file_glob: true
+  file: ./release/*
+  skip_cleanup: true
+  on:
+    tags: true
+    go: '1.11'
