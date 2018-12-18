@@ -21,19 +21,34 @@ var envVarMagic = "this is magic"
 func testMain(t *testing.T, d string, args []string) {
 	os.Args = args
 	os.Setenv(envVarName, envVarMagic)
-	fd, err := os.Create(filepath.Join(d, "logs"))
+	stdout, err := os.Create(filepath.Join(d, "stdout"))
 	assert.NoError(t, err)
-	os.Stdout = fd
+	defer stdout.Close()
+	stderr, err := os.Create(filepath.Join(d, "stderr"))
+	assert.NoError(t, err)
+	defer stderr.Close()
+	defer func(o, e *os.File) {
+		os.Stdout = o
+		os.Stderr = e
+	}(os.Stdout, os.Stderr)
+	os.Stdout = stdout
+	os.Stderr = stderr
 	exit = func(code int) {
 		assert.Equal(t, 0, code)
 	}
 	main()
-	assert.NoError(t, fd.Close())
-	fd, err = os.Open(filepath.Join(d, "logs"))
+	fd, err := os.Open(filepath.Join(d, "stdout"))
 	assert.NoError(t, err)
+	defer fd.Close()
 	b, err := ioutil.ReadAll(fd)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedOutput+"\n", string(b))
+	fd, err = os.Open(filepath.Join(d, "stderr"))
+	assert.NoError(t, err)
+	defer fd.Close()
+	b, err = ioutil.ReadAll(fd)
+	assert.NoError(t, err)
+	assert.Equal(t, "", string(b))
 }
 
 func TestIntegration(t *testing.T) {
@@ -58,7 +73,7 @@ func TestIntegration(t *testing.T) {
 			"platform": "linux/amd64"
 		  }`))
 	}))
-	testMain(t, d, []string{"test", "--server", s.URL, "--token", "test-token"})
+	testMain(t, d, []string{"test", "--server", s.URL, "--token", "test-token", "--unknown", "-o", "something"})
 	testMain(t, d, []string{"test", "--server", s.URL, "--token", "test-token", "--help"})
 }
 

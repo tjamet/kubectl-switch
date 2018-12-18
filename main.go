@@ -25,9 +25,16 @@ func run(rg server.RestConfigGetter) {
 	exit(kubectl.Exec(v, os.Args[1:]...))
 }
 
+type nopWriter struct {}
+
+func (n nopWriter) Write(a[]byte) (int, error) {
+	return len(a), nil
+}
+
 func main() {
 
-	cmds := &cobra.Command{}
+	cmds := &cobra.Command{
+	}
 
 	flags := cmds.PersistentFlags()
 	flags.SetNormalizeFunc(utilflag.WarnWordSepNormalizeFunc) // Warn for "_" flags
@@ -45,5 +52,6 @@ func main() {
 		run(kubeConfigFlags)
 		return nil
 	})
+	cmds.SetOutput(nopWriter{})
 	cmds.Execute()
 }
