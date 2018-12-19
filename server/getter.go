@@ -3,9 +3,9 @@ package server
 import (
 	"time"
 
+	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"k8s.io/client-go/discovery"
 )
 
 // DefaultVersion is the client version to use when failing to get the server one

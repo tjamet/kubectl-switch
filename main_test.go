@@ -55,7 +55,6 @@ func TestIntegration(t *testing.T) {
 	d, err := ioutil.TempDir("", "")
 	assert.NoError(t, err)
 	defer os.RemoveAll(d)
-	fmt.Println(os.Args, d, err)
 	assert.NoError(t, os.Setenv("HOME", d))
 	assert.NoError(t, os.MkdirAll(filepath.Join(d, ".kube/bin"), 0777))
 	assert.NoError(t, os.Link(os.Args[0], filepath.Join(d, ".kube/bin/kubectl-1.13.1")))

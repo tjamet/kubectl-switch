@@ -1,10 +1,14 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"github.com/tjamet/kubectl-switch/server"
-	"os" 
 	"github.com/tjamet/kubectl-switch/kubectl"
+	"github.com/tjamet/kubectl-switch/osext"
+	"github.com/tjamet/kubectl-switch/server"
+	"github.com/tjamet/kubectl-switch/update"
+	"io"
+	"os"
 
 	"github.com/spf13/cobra"
 	utilflag "k8s.io/apiserver/pkg/util/flag"
@@ -25,16 +29,27 @@ func run(rg server.RestConfigGetter) {
 	exit(kubectl.Exec(v, os.Args[1:]...))
 }
 
-type nopWriter struct {}
+type nopWriter struct{}
 
-func (n nopWriter) Write(a[]byte) (int, error) {
+func (n nopWriter) Write(a []byte) (int, error) {
 	return len(a), nil
 }
 
-func main() {
+type dummyPatcher struct{}
 
-	cmds := &cobra.Command{
+func (d dummyPatcher) Patch(old io.Reader, new io.Writer, patch io.Reader) error {
+	return errors.New("dummy error")
+}
+
+func main() {
+	if os.Getenv("KUBECTLSWITCH_SELF_UPDATE") == "true" {
+		exe, err := osext.Executable()
+		if err == nil {
+			update.DefaultGitHub.ConfirmAndUpdate(exe)
+		}
 	}
+
+	cmds := &cobra.Command{}
 
 	flags := cmds.PersistentFlags()
 	flags.SetNormalizeFunc(utilflag.WarnWordSepNormalizeFunc) // Warn for "_" flags
