@@ -12,7 +12,7 @@ import (
 var DefaultVersion = "1.13.0"
 
 // Timeout is the maximum time to retrieve the version
-var Timeout = 1 * time.Second
+var Timeout = 4 * time.Second
 
 // allow dependency injection for tests
 var newKubernetesClient = func(c *rest.Config) (discovery.ServerVersionInterface, error) {
