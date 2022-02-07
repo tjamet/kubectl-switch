@@ -5,6 +5,5 @@ import (
 )
 
 func main() {
-	// backward compatibility, should deprecate at some point
 	kswitch.Main()
 }
