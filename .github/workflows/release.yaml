@@ -11,7 +11,7 @@ on:
 jobs:
 
   call-build:
-    uses: adevinta/kubectl-switch/.github/workflows/go.yml@main
+    uses: tjamet/kubectl-switch/.github/workflows/go.yml@main
 
   publish:
     runs-on: ubuntu-latest
