@@ -10,6 +10,7 @@ import (
 	"testing" //"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/tjamet/kubectl-switch/kubectl"
 	//"github.com/tjamet/kubectl-switch/server"
 )
 
@@ -19,6 +20,7 @@ const envVarName = "K_PROXY_TEST_MAIN"
 var envVarMagic = "this is magic"
 
 func testMain(t *testing.T, d string, args []string) {
+	t.Helper()
 	os.Args = args
 	os.Setenv(envVarName, envVarMagic)
 	stdout, err := os.Create(filepath.Join(d, "stdout"))
@@ -52,13 +54,16 @@ func testMain(t *testing.T, d string, args []string) {
 }
 
 func TestIntegration(t *testing.T) {
+	t.Cleanup(kubectl.Reset)
 	d, err := ioutil.TempDir("", "")
 	assert.NoError(t, err)
-	defer os.RemoveAll(d)
-	fmt.Println(os.Args, d, err)
-	assert.NoError(t, os.Setenv("HOME", d))
-	assert.NoError(t, os.MkdirAll(filepath.Join(d, ".kube/bin"), 0777))
-	assert.NoError(t, os.Link(os.Args[0], filepath.Join(d, ".kube/bin/kubectl-1.13.1")))
+	t.Cleanup(func() {
+		os.RemoveAll(d)
+	})
+	kubectl.HomeDir = func() string { return d }
+	path := kubectl.Path("1.13.1")
+	assert.NoError(t, os.MkdirAll(filepath.Dir(path), 0777))
+	assert.NoError(t, os.Link(os.Args[0], path))
 	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{

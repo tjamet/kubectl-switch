@@ -33,7 +33,6 @@ func (n nopWriter) Write(a []byte) (int, error) {
 }
 
 func main() {
-
 	cmds := &cobra.Command{}
 
 	flags := cmds.PersistentFlags()
