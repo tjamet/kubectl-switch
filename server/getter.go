@@ -3,13 +3,13 @@ package server
 import (
 	"time"
 
+	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"k8s.io/client-go/discovery"
 )
 
 // DefaultVersion is the client version to use when failing to get the server one
-var DefaultVersion = "1.13.0"
+var DefaultVersion = "1.22.0"
 
 // Timeout is the maximum time to retrieve the version
 var Timeout = 4 * time.Second
