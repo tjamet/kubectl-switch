@@ -1,2 +1,7 @@
 kubectl-switch
-kubectl/test-home./release
+**/test-home
+cmd/kubectl-switch/kubectl-switch
+dist
+profile.cov
+junit.xml
+coverage.xml
