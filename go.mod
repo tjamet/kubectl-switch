@@ -1,7 +1,5 @@
 module github.com/tjamet/kubectl-switch
 
-replace github.com/Sirupsen/logrus => github.com/sirupsen/logrus v1.8.2-0.20220112234510-85981c045988
-
 go 1.17
 
 require (
