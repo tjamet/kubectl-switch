@@ -7,16 +7,31 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"runtime"
 	"syscall"
 	"text/template"
+
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/homedir"
 )
 
 // KubectlURLTemplate defines the pattern of download URLs for kubectl
 // Edit this value to use a custom location
-var KubectlURLTemplate = "https://storage.googleapis.com/kubernetes-release/release/v{{ .Version }}/bin/{{ .OS }}/{{ .Arch }}/kubectl"
-var versionRegexp = regexp.MustCompile("([0-9.]+)")
+var (
+	KubectlURLTemplate         = "https://storage.googleapis.com/kubernetes-release/release/v{{ .Version }}/bin/{{ .OS }}/{{ .Arch }}/kubectl"
+	HomeDir                    = homedir.HomeDir
+	versionRegexp              = regexp.MustCompile("([0-9.]+)")
+	originalHomeDir            = HomeDir
+	originalKubectlURLTemplate = KubectlURLTemplate
+)
+
+// Reset resets the package variables that could have been modified from outside
+func Reset() {
+	HomeDir = originalHomeDir
+	KubectlURLTemplate = originalKubectlURLTemplate
+}
 
 type kubectlVersion struct {
 	Version string
@@ -24,11 +39,8 @@ type kubectlVersion struct {
 	Arch    string
 }
 
-func homeDir() string {
-	if h := os.Getenv("HOME"); h != "" {
-		return h
-	}
-	return os.Getenv("USERPROFILE") // windows
+func kubeDir() string {
+	return filepath.Join(HomeDir(), clientcmd.RecommendedHomeDir)
 }
 
 func normalizeVersion(version string) string {
@@ -54,13 +66,13 @@ func URL(version string) string {
 }
 
 func binDir() string {
-	return homeDir() + "/.kube/bin"
+	return filepath.Join(kubeDir(), "bin")
 }
 
 // Path retrieves the path of kubectl for a given version
 func Path(version string) string {
 	version = normalizeVersion(version)
-	return binDir() + "/kubectl-" + version
+	return filepath.Join(binDir(), fmt.Sprintf("/kubectl-%v-%v-%v", runtime.GOOS, runtime.GOARCH, version))
 }
 
 // Download downloads a specific kubectl version to Path()
