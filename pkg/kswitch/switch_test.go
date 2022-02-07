@@ -1,4 +1,4 @@
-package main
+package kswitch
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 	"testing" //"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/tjamet/kubectl-switch/kubectl"
+	"github.com/tjamet/kubectl-switch/pkg/kubectl"
 	//"github.com/tjamet/kubectl-switch/server"
 )
 
@@ -38,7 +38,7 @@ func testMain(t *testing.T, d string, args []string) {
 	exit = func(code int) {
 		assert.Equal(t, 0, code)
 	}
-	main()
+	Main()
 	fd, err := os.Open(filepath.Join(d, "stdout"))
 	assert.NoError(t, err)
 	defer fd.Close()

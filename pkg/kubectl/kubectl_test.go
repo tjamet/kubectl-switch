@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/tjamet/kubectl-switch/kubectl"
+	"github.com/tjamet/kubectl-switch/pkg/kubectl"
 )
 
 type roundTripperFunc func(*http.Request) (*http.Response, error)
