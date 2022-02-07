@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/tjamet/kubectl-switch/server"
-	"os" 
+	"os"
+
 	"github.com/tjamet/kubectl-switch/kubectl"
+	"github.com/tjamet/kubectl-switch/server"
 
 	"github.com/spf13/cobra"
-	utilflag "k8s.io/apiserver/pkg/util/flag"
+	//utilflag "k8s.io/apiserver/pkg/util/flag"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 
@@ -25,25 +26,24 @@ func run(rg server.RestConfigGetter) {
 	exit(kubectl.Exec(v, os.Args[1:]...))
 }
 
-type nopWriter struct {}
+type nopWriter struct{}
 
-func (n nopWriter) Write(a[]byte) (int, error) {
+func (n nopWriter) Write(a []byte) (int, error) {
 	return len(a), nil
 }
 
 func main() {
 
-	cmds := &cobra.Command{
-	}
+	cmds := &cobra.Command{}
 
 	flags := cmds.PersistentFlags()
-	flags.SetNormalizeFunc(utilflag.WarnWordSepNormalizeFunc) // Warn for "_" flags
+	//flags.SetNormalizeFunc(utilflag.WarnWordSepNormalizeFunc) // Warn for "_" flags
 
 	// Normalize all flags that are coming from other packages or pre-configurations
 	// a.k.a. change all "_" to "-". e.g. glog package
-	flags.SetNormalizeFunc(utilflag.WordSepNormalizeFunc)
+	//flags.SetNormalizeFunc(utilflag.WordSepNormalizeFunc)
 
-	kubeConfigFlags := genericclioptions.NewConfigFlags()
+	kubeConfigFlags := genericclioptions.NewConfigFlags(true)
 	kubeConfigFlags.AddFlags(flags)
 	cmds.Run = func(cmd *cobra.Command, args []string) {
 		run(kubeConfigFlags)
