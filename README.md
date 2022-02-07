@@ -11,7 +11,7 @@ Visit the [latest release page](https://github.com/tjamet/kubectl-switch/release
 From a command-line, run
 
 ```bash
-curl -L -o /usr/local/bin/k https://github.com/tjamet/kubectl-switch/releases/download/v1.0/kubectl-switch-$(uname -s | tr '[A-Z]' '[a-z]')-$(uname -m)
+curl -L -o /usr/local/bin/k https://github.com/tjamet/kubectl-switch/releases/download/v1.1/kubectl-switch-$(uname -s)-$(uname -m)
 chmod +x /usr/local/bin/k
 ```
 
