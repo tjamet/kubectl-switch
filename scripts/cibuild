@@ -21,7 +21,7 @@ mkdir -p dist
 
 function build(){
     echo "building for os=${3} arch=${2}"
-    env GOARCH=${2} GOOS=${3} go build -o $1 .
+    env GOARCH=${2} GOOS=${3} go build -o $1 ./cmd/kubectl-switch
 }
 
 for arch in amd64 arm64; do
